@@ -6,25 +6,34 @@
 [![tests](https://github.com/jni/napari-midi/workflows/tests/badge.svg)](https://github.com/jni/napari-midi/actions)
 [![codecov](https://codecov.io/gh/jni/napari-midi/branch/master/graph/badge.svg)](https://codecov.io/gh/jni/napari-midi)
 
-Control napari with aUSB MIDI controller
+Control napari with a USB MIDI controller
 
 ----------------------------------
 
-This [napari] plugin was generated with [Cookiecutter] using with [@napari]'s [cookiecutter-napari-plugin] template.
+**NOTE: this isn't working at all currently. The lack of thread safety appears
+to kill the process when in a standalone package, even though a script works
+— see https://github.com/napari/napari/pull/3332 **
 
-<!--
-Don't miss the full getting started guide to set up your new package:
-https://github.com/napari/cookiecutter-napari-plugin#getting-started
+## What works
 
-and review the napari docs for plugin developers:
-https://napari.org/docs/plugins/index.html
--->
+- bidirectional updates of the button and rotary dial LEDs
+- Fast and slow scrolling dials
+- Opacity of the topmost layer with the slider
+- All out-of-tree code: no hacking napari internals needed 🎉
+- Pretty decent API I think...! See all the `.bind_` calls at the end of the file.
+
+## What doesn't work
+
+- Any kind of documentation or comments 😂
+- Thread safety — see #2326 for how to do it properly, I mistakenly thought that our events would handle that for us 😬, thanks @tlambert03 for clarifying that the most certainly do not! 😂
+- (same vein) race conditions. Some of our events don't seem to carry the event data (?), and checking the source for the value sometimes returns the old value — hence the `time.sleep` currently there.
+- super clunky implementation
 
 ## Installation
 
 You can install `napari-midi` via [pip]:
 
-    pip install napari-midi
+    pip install git+https://github.com/jni/napari-midi
 
 ## Contributing
 
