@@ -7,6 +7,7 @@ from superqt.utils import ensure_main_thread
 
 
 class XTouchMini:
+    """A class representing the Behringer "X-Touch mini" midi controller."""
     def __init__(self, viewer, hold_thresh=0.5):
         self.viewer = viewer
         self.midi_in, _ = rtmidi.midiutil.open_midiinput(0)
@@ -59,6 +60,28 @@ class XTouchMini:
 
     @ensure_main_thread
     def receive_set(self, message_time_tup, data):
+        """Main callback method for the controller.
+
+        Parameters
+        ----------
+        message_time_tup: tuple
+            A tuple containing as its first element the midi 'message',
+            together with the time elapsed (in seconds) since the last message
+            was received.
+
+            The message is itself a 3-tuple of ints, containing the *type* of
+            the message, the ID of the control sending the message, and the
+            value of the message.
+
+            There are three possible types:
+                - 186 (0xba): a continuous-value element (rotary or slider
+                  control) has been changed.
+                - 154 (0x9a): a button has been pressed (its value is 127).
+                - 138 (0x8a): a button has been released (its value is 0).
+        data: None
+            (Not sure about this one, always appears to be None. Perhaps
+            different midi controllers can return further data.)
+        """
         message, time = message_time_tup
         msg_type, control_id, value = message
         if msg_type == 186:  # rotary or slider
@@ -69,11 +92,19 @@ class XTouchMini:
             self.receive_button(control_id, value)
 
     def receive_continuous(self, control_id, value):
+        """Receive a continuous control (rotary/slider) message.
+
+        If a callback is associated with that control, it is called.
+        """
         control = self.table.loc[control_id]
         if control['fw'] is not None:
             control['fw'](value)
 
     def receive_button(self, control_id, value):
+        """Receive a button control message.
+
+        If that button is associated with a callback, activate that callback.
+        """
         control = self.table.loc[control_id]
         if control['fw'] is not None:
             control['fw'](value)
