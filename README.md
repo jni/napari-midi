@@ -10,10 +10,6 @@ Control napari with a USB MIDI controller
 
 ----------------------------------
 
-**NOTE: this isn't working at all currently. The lack of thread safety appears
-to kill the process when in a standalone package, even though a script works
-— see https://github.com/napari/napari/pull/3332 **
-
 ## What works
 
 - bidirectional updates of the button and rotary dial LEDs
